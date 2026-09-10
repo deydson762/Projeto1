@@ -41,39 +41,9 @@ Os principais módulos e estruturas do projeto envolvem:
 
 As estruturas de dados devem ser implementadas por meio de **classes próprias**, evitando o uso direto de estruturas built-in do Python para solucionar os problemas propostos.
 
-## ▶️ Como Executar
-
-1. Clone este repositório:
-
-```bash
-git clone URL_DO_REPOSITORIO
-```
-
-2. Acesse a pasta do projeto:
-
-```bash
-cd projeto-restaurante
-```
-
-3. Execute o programa conforme a organização dos arquivos do projeto:
-
-```bash
-python main.py
-```
-
-> A estrutura e o arquivo principal de execução podem ser alterados conforme o desenvolvimento do projeto.
-
-## 👥 Integrantes
-
-* Nome do aluno 1
-* Nome do aluno 2
-* Nome do aluno 3
-* Nome do aluno 4
-
 ## 👨‍🏫 Disciplinas
 
-**Estrutura de Dados**
-**Linguagem de Programação 2**
+**Estrutura de Dados** / **Linguagem de Programação 2**
 
 **Instituição:** Fatec Rio Claro
 
