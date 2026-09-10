@@ -8,30 +8,38 @@ Durante o desenvolvimento, serão utilizados conceitos como listas, pilhas, fila
 
 ## 🎯 Objetivos
 
-* Aplicar os conceitos de Estrutura de Dados na prática;
-* Desenvolver uma solução organizada e funcional;
-* Utilizar estruturas de dados adequadas para cada situação;
-* Praticar a implementação e manipulação de estruturas;
-* Desenvolver o raciocínio lógico e a resolução de problemas;
-* Utilizar boas práticas de programação.
+* Desenvolver um sistema para gerenciamento de um restaurante;
+* Criar uma estrutura para controle das comandas abertas;
+* Gerenciar refeições e bebidas adicionadas às comandas;
+* Controlar o estoque de produtos, considerando validade e prioridade dos produtos mais antigos;
+* Permitir a edição da quantidade de produtos em estoque;
+* Gerenciar os pagamentos realizados no fechamento das comandas;
+* Controlar o consumo e realizar a baixa dos produtos utilizados no estoque;
+* Gerar relatórios de vendas e consumo;
+* Aplicar conceitos de Estrutura de Dados e Programação Orientada a Objetos na solução.
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Tecnologias e Bibliotecas Utilizadas
 
 * **Python**
 * **Git**
 * **GitHub**
+* **Faker** — geração de dados aleatórios para popular o sistema;
+* **Pickle** — armazenamento e carregamento dos dados de forma não volátil.
 
-## 🧩 Estruturas de Dados Utilizadas
+## 🧩 Estruturas de Dados e Classes
 
-As principais estruturas e conceitos abordados no projeto são:
+O projeto deverá utilizar **classes próprias** para implementar as estruturas de dados necessárias, separando as responsabilidades de cada parte do sistema.
 
-* Listas;
-* Listas encadeadas;
-* Pilhas;
-* Filas;
-* Busca de elementos;
-* Algoritmos de ordenação;
-* Manipulação de dados.
+Os principais módulos e estruturas do projeto envolvem:
+
+* **Controle de Comandas** — número da comanda, cliente, data e hora de abertura, refeições e bebidas;
+* **Controle de Estoque** — produtos, preços, datas de compra e vencimento e quantidade disponível;
+* **Controle de Pagamentos** — cliente, comanda, forma de pagamento, valor, data e hora;
+* **Controle de Consumo** — registro dos itens consumidos e baixa dos produtos utilizados no estoque;
+* **Geração e armazenamento de dados** — utilização das bibliotecas Faker e pickle;
+* **Relatórios** — geração de relatórios de vendas e consumo.
+
+As estruturas de dados devem ser implementadas por meio de **classes próprias**, evitando o uso direto de estruturas built-in do Python para solucionar os problemas propostos.
 
 ## ▶️ Como Executar
 
@@ -44,16 +52,16 @@ git clone URL_DO_REPOSITORIO
 2. Acesse a pasta do projeto:
 
 ```bash
-cd projeto-estrutura-dados
+cd projeto-restaurante
 ```
 
-3. Execute o programa principal:
+3. Execute o programa conforme a organização dos arquivos do projeto:
 
 ```bash
 python main.py
 ```
 
-> Dependendo da organização final do projeto, o nome do arquivo de execução poderá ser alterado.
+> A estrutura e o arquivo principal de execução podem ser alterados conforme o desenvolvimento do projeto.
 
 ## 👥 Integrantes
 
@@ -62,20 +70,20 @@ python main.py
 * Nome do aluno 3
 * Nome do aluno 4
 
-## 👨‍🏫 Disciplina
+## 👨‍🏫 Disciplinas
 
 **Estrutura de Dados**
+**Linguagem de Programação 2**
 
-**Professor:** Nome do Professor
-**Curso:** Nome do Curso
-**Instituição:** Nome da Instituição
+**Instituição:** Fatec Rio Claro
 
 ## 📌 Status do Projeto
 
 🚧 **Em desenvolvimento**
 
-O projeto poderá receber novas funcionalidades e melhorias durante o período de desenvolvimento e avaliação.
+O projeto será desenvolvido por meio de **entregas incrementais no GitHub**, conforme os requisitos da avaliação.
 
-## 📄 Licença
+**Prazo final:** 17/09/2026
+**Apresentação:** 07h50
 
-Projeto desenvolvido exclusivamente para fins **acadêmicos**, como parte das atividades da disciplina de Estrutura de Dados.
+O sistema deverá simular um atendimento completo, desde a abertura da comanda e inclusão dos itens até o fechamento e pagamento.
