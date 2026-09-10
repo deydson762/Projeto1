@@ -2,9 +2,9 @@
 
 ## 📚 Sobre o Projeto
 
-Este projeto foi desenvolvido como parte da avaliação da disciplina de **Estrutura de Dados**. O objetivo é aplicar, na prática, os conceitos estudados durante as aulas, utilizando estruturas de dados e técnicas de programação para desenvolver uma solução funcional.
+Este projeto foi desenvolvido como parte da avaliação da disciplina de Estrutura de Dados, tendo como tema principal o gerenciamento de um restaurante. O objetivo é aplicar, na prática, os conceitos estudados durante as aulas, utilizando estruturas de dados e técnicas de programação para desenvolver uma solução funcional que represente situações do dia a dia de um restaurante.
 
-Durante o desenvolvimento, serão utilizados conceitos como **listas, pilhas, filas, estruturas encadeadas, busca, ordenação** e outros conteúdos relacionados à disciplina, conforme a proposta do projeto.
+Durante o desenvolvimento, serão utilizados conceitos como listas, pilhas, filas, estruturas encadeadas, busca, ordenação e outros conteúdos relacionados à disciplina, aplicados ao gerenciamento de informações e processos do restaurante.
 
 ## 🎯 Objetivos
 
