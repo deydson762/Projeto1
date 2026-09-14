@@ -114,3 +114,77 @@ class GerenciadorComandas:
 
     def abertas(self):
         return [c for c in self.comandas.listar() if not c.fechada]
+
+
+# === PARTE 2: CONTROLE DE ESTOQUE ===
+
+class FilaEncadeada:
+    def __init__(self):
+        self.inicio = None
+        self.fim = None
+
+    def enfileirar(self, dado):
+        novo_no = No(dado)
+        if self.inicio is None:
+            self.inicio = novo_no
+            self.fim = novo_no
+        else:
+            self.fim.proximo = novo_no
+            self.fim = novo_no
+
+    def desenfileirar(self):
+        if self.inicio is None:
+            return None
+        dado = self.inicio.dado
+        self.inicio = self.inicio.proximo
+        if self.inicio is None:
+            self.fim = None
+        return dado
+
+    def listar(self):
+        itens = []
+        atual = self.inicio
+        while atual:
+            itens.append(atual.dado)
+            atual = atual.proximo
+        return itens
+
+
+class Produto:
+    def __init__(self, nome, preco_compra, preco_venda, data_compra, data_vencimento, quantidade):
+        self.nome = nome
+        self.preco_compra = preco_compra
+        self.preco_venda = preco_venda
+        self.data_compra = data_compra
+        self.data_vencimento = data_vencimento
+        self.quantidade = quantidade
+
+    def editar_quantidade(self, nova_qtd):
+        self.quantidade = nova_qtd
+
+
+class GerenciadorEstoque:
+    def __init__(self):
+        self.produtos = FilaEncadeada()
+
+    def adicionar_produto(self, produto):
+        self.produtos.enfileirar(produto)
+
+    def remover_produto_antigo(self):
+        return self.produtos.desenfileirar()
+
+    def buscar_produto(self, nome):
+        for p in self.produtos.listar():
+            if p.nome == nome:
+                return p
+        return None
+
+    def editar_quantidade(self, nome, nova_qtd):
+        produto = self.buscar_produto(nome)
+        if produto:
+            produto.editar_quantidade(nova_qtd)
+            return True
+        return False
+
+    def listar_estoque(self):
+        return self.produtos.listar()
