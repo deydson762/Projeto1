@@ -226,3 +226,39 @@ class GerenciadorPagamentos:
         return self.pagamentos.listar()
 
 
+# === PARTE 4: CONTROLE DO QUE CONSUMIU ===
+
+class Consumo:
+    def __init__(self, cliente, comanda_numero, item_nome, quantidade, data_hora):
+        self.cliente = cliente
+        self.comanda_numero = comanda_numero
+        self.item_nome = item_nome
+        self.quantidade = quantidade
+        self.data_hora = data_hora
+
+
+class GerenciadorConsumo:
+    def __init__(self):
+        self.consumos = ListaEncadeada()
+
+    def registrar_consumo(self, consumo):
+        self.consumos.adicionar(consumo)
+
+    def buscar_consumo_por_cliente(self, cliente):
+        consumos = []
+        for c in self.consumos.listar():
+            if c.cliente == cliente:
+                consumos.append(c)
+        return consumos
+
+    def buscar_consumo_por_comanda(self, numero_comanda):
+        consumos = []
+        for c in self.consumos.listar():
+            if c.comanda_numero == numero_comanda:
+                consumos.append(c)
+        return consumos
+
+    def listar_todos_consumos(self):
+        return self.consumos.listar()
+
+
