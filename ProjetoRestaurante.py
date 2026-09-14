@@ -188,3 +188,41 @@ class GerenciadorEstoque:
 
     def listar_estoque(self):
         return self.produtos.listar()
+
+
+# === PARTE 3: CONTROLE DE PAGAMENTO ===
+
+class Pagamento:
+    def __init__(self, cliente, numero_comanda, forma_pagamento, valor, data_hora):
+        self.cliente = cliente
+        self.numero_comanda = numero_comanda
+        self.forma_pagamento = forma_pagamento  # PIX, cartao, dinheiro
+        self.valor = valor
+        self.data_hora = data_hora
+
+
+class GerenciadorPagamentos:
+    def __init__(self):
+        self.pagamentos = ListaEncadeada()
+
+    def registrar_pagamento(self, pagamento):
+        self.pagamentos.adicionar(pagamento)
+
+    def buscar_pagamentos_por_comanda(self, numero_comanda):
+        pagamentos = []
+        for p in self.pagamentos.listar():
+            if p.numero_comanda == numero_comanda:
+                pagamentos.append(p)
+        return pagamentos
+
+    def buscar_pagamentos_por_cliente(self, cliente):
+        pagamentos = []
+        for p in self.pagamentos.listar():
+            if p.cliente == cliente:
+                pagamentos.append(p)
+        return pagamentos
+
+    def listar_todos_pagamentos(self):
+        return self.pagamentos.listar()
+
+
