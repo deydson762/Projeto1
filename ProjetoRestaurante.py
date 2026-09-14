@@ -262,3 +262,122 @@ class GerenciadorConsumo:
         return self.consumos.listar()
 
 
+# === SISTEMA INTEGRADO DO RESTAURANTE ===
+
+class Restaurante:
+    def __init__(self):
+        self.gerenciador_comandas = GerenciadorComandas()
+        self.gerenciador_estoque = GerenciadorEstoque()
+        self.gerenciador_pagamentos = GerenciadorPagamentos()
+        self.gerenciador_consumo = GerenciadorConsumo()
+
+    def abrir_comanda(self, cliente):
+        return self.gerenciador_comandas.abrir(cliente)
+
+    def adicionar_item_comanda(self, numero_comanda, item):
+        comanda = self.gerenciador_comandas.buscar(numero_comanda)
+        if comanda and not comanda.fechada:
+            comanda.adicionar_item(item)
+            return True
+        return False
+
+    def remover_item_comanda(self, numero_comanda, item):
+        comanda = self.gerenciador_comandas.buscar(numero_comanda)
+        if comanda and not comanda.fechada:
+            return comanda.remover_item(item)
+        return False
+
+    def fechar_comanda_e_pagar(self, numero_comanda, forma_pagamento):
+        comanda = self.gerenciador_comandas.buscar(numero_comanda)
+        if not comanda or comanda.fechada:
+            return False
+
+        # Baixar estoque dos produtos consumidos
+        for item in comanda.refeicoes.listar():
+            self._baixar_estoque(item.nome, 1)
+            consumo = Consumo(comanda.cliente, comanda.numero, item.nome, 1, datetime.now())
+            self.gerenciador_consumo.registrar_consumo(consumo)
+
+        for item in comanda.bebidas.listar():
+            self._baixar_estoque(item.nome, 1)
+            consumo = Consumo(comanda.cliente, comanda.numero, item.nome, 1, datetime.now())
+            self.gerenciador_consumo.registrar_consumo(consumo)
+
+        # Registrar pagamento
+        valor_total = comanda.total()
+        pagamento = Pagamento(comanda.cliente, comanda.numero, forma_pagamento, valor_total, datetime.now())
+        self.gerenciador_pagamentos.registrar_pagamento(pagamento)
+
+        # Fechar comanda
+        comanda.fechar()
+        return True
+
+    def _baixar_estoque(self, nome_produto, quantidade):
+        produto = self.gerenciador_estoque.buscar_produto(nome_produto)
+        if produto:
+            nova_qtd = max(0, produto.quantidade - quantidade)
+            self.gerenciador_estoque.editar_quantidade(nome_produto, nova_qtd)
+
+
+# === TESTE DO SISTEMA INTEGRADO ===
+if __name__ == "__main__":
+    from datetime import datetime, timedelta
+
+    restaurante = Restaurante()
+
+    # Popular estoque inicial
+    hoje = datetime.now()
+    restaurante.gerenciador_estoque.adicionar_produto(
+        Produto("Hambúrguer", 10.00, 25.00, hoje, hoje + timedelta(days=7), 20)
+    )
+    restaurante.gerenciador_estoque.adicionar_produto(
+        Produto("Batata Frita", 5.00, 15.00, hoje, hoje + timedelta(days=10), 30)
+    )
+    restaurante.gerenciador_estoque.adicionar_produto(
+        Produto("Coca Cola", 3.00, 8.00, hoje, hoje + timedelta(days=30), 50)
+    )
+    restaurante.gerenciador_estoque.adicionar_produto(
+        Produto("Suco", 2.00, 6.00, hoje, hoje + timedelta(days=15), 40)
+    )
+    restaurante.gerenciador_estoque.adicionar_produto(
+        Produto("Água", 1.00, 4.00, hoje, hoje + timedelta(days=60), 100)
+    )
+
+    print("=== ESTOQUE INICIAL ===")
+    for produto in restaurante.gerenciador_estoque.listar_estoque():
+        print(f"{produto.nome}: {produto.quantidade} unidades (R$ {produto.preco_venda:.2f})")
+    print()
+
+    # Simular atendimento completo
+    print("=== ATENDIMENTO COMPLETO ===")
+    comanda1 = restaurante.abrir_comanda("João")
+    print(f"Comanda aberta: {comanda1.numero} - Cliente: {comanda1.cliente}")
+
+    restaurante.adicionar_item_comanda(comanda1.numero, Item("Hambúrguer", 25.00, "refeicao"))
+    restaurante.adicionar_item_comanda(comanda1.numero, Item("Batata Frita", 15.00, "refeicao"))
+    restaurante.adicionar_item_comanda(comanda1.numero, Item("Coca Cola", 8.00, "bebida"))
+    print(f"Itens adicionados à comanda {comanda1.numero}")
+
+    print(f"Total da comanda: R$ {comanda1.total():.2f}")
+    print()
+
+    # Fechar comanda e pagar
+    restaurante.fechar_comanda_e_pagar(comanda1.numero, "cartao")
+    print(f"Comanda {comanda1.numero} fechada e paga com cartão")
+    print()
+
+    # Verificar estoque após consumo
+    print("=== ESTOQUE APÓS CONSUMO ===")
+    for produto in restaurante.gerenciador_estoque.listar_estoque():
+        print(f"{produto.nome}: {produto.quantidade} unidades")
+    print()
+
+    # Verificar registros
+    print("=== REGISTRO DE CONSUMO ===")
+    for consumo in restaurante.gerenciador_consumo.buscar_consumo_por_comanda(comanda1.numero):
+        print(f"{consumo.cliente} consumiu: {consumo.item_nome} (Qtd: {consumo.quantidade})")
+    print()
+
+    print("=== REGISTRO DE PAGAMENTO ===")
+    for pagamento in restaurante.gerenciador_pagamentos.buscar_pagamentos_por_comanda(comanda1.numero):
+        print(f"{pagamento.cliente} pagou R$ {pagamento.valor:.2f} via {pagamento.forma_pagamento}")
