@@ -396,94 +396,129 @@ class PersistenciaDados:
             return None
 
 
+# === PARTE 6: RELATÓRIOS ===
+
+class GeradorRelatorios:
+    @staticmethod
+    def relatorio_vendas(restaurante):
+        pagamentos = restaurante.gerenciador_pagamentos.listar_todos_pagamentos()
+
+        if not pagamentos:
+            print("Nenhuma venda registrada.")
+            return
+
+        print("=== RELATÓRIO DE VENDAS ===")
+        print(f"Total de vendas: {len(pagamentos)} transações")
+
+        valor_total = sum(p.valor for p in pagamentos)
+        print(f"Valor total arrecadado: R$ {valor_total:.2f}")
+        print()
+
+        # Por forma de pagamento
+        print("--- Por Forma de Pagamento ---")
+        formas = {}
+        for p in pagamentos:
+            formas[p.forma_pagamento] = formas.get(p.forma_pagamento, 0) + p.valor
+        for forma, valor in formas.items():
+            print(f"{forma}: R$ {valor:.2f} ({valor/valor_total*100:.1f}%)")
+        print()
+
+        # Por cliente
+        print("--- Por Cliente ---")
+        clientes = {}
+        for p in pagamentos:
+            clientes[p.cliente] = clientes.get(p.cliente, 0) + p.valor
+        for cliente, valor in sorted(clientes.items(), key=lambda x: x[1], reverse=True):
+            print(f"{cliente}: R$ {valor:.2f}")
+        print()
+
+        # Detalhamento por comanda
+        print("--- Detalhamento por Comanda ---")
+        for p in pagamentos:
+            print(f"Comanda {p.numero_comanda}: {p.cliente} - R$ {p.valor:.2f} ({p.forma_pagamento}) - {p.data_hora.strftime('%d/%m/%Y %H:%M')}")
+
+    @staticmethod
+    def relatorio_consumo(restaurante):
+        consumos = restaurante.gerenciador_consumo.listar_todos_consumos()
+
+        if not consumos:
+            print("Nenhum consumo registrado.")
+            return
+
+        print("=== RELATÓRIO DE CONSUMO ===")
+        print(f"Total de itens consumidos: {len(consumos)}")
+        print()
+
+        # Por cliente
+        print("--- Por Cliente ---")
+        clientes = {}
+        for c in consumos:
+            clientes[c.cliente] = clientes.get(c.cliente, 0) + c.quantidade
+        for cliente, qtd in sorted(clientes.items(), key=lambda x: x[1], reverse=True):
+            print(f"{cliente}: {qtd} itens")
+        print()
+
+        # Por produto
+        print("--- Por Produto ---")
+        produtos = {}
+        for c in consumos:
+            produtos[c.item_nome] = produtos.get(c.item_nome, 0) + c.quantidade
+        for produto, qtd in sorted(produtos.items(), key=lambda x: x[1], reverse=True):
+            print(f"{produto}: {qtd} unidades")
+        print()
+
+        # Detalhamento
+        print("--- Detalhamento Completo ---")
+        for c in consumos:
+            print(f"{c.cliente} - Comanda {c.comanda_numero}: {c.item_nome} (Qtd: {c.quantidade}) - {c.data_hora.strftime('%d/%m/%Y %H:%M')}")
+
+    @staticmethod
+    def relatorio_estoque(restaurante):
+        produtos = restaurante.gerenciador_estoque.listar_estoque()
+
+        if not produtos:
+            print("Estoque vazio.")
+            return
+
+        print("=== RELATÓRIO DE ESTOQUE ===")
+        print(f"Total de produtos: {len(produtos)}")
+        print()
+
+        valor_total_estoque = sum(p.quantidade * p.preco_compra for p in produtos)
+        print(f"Valor total do estoque (compra): R$ {valor_total_estoque:.2f}")
+        print()
+
+        print("--- Produtos em Estoque ---")
+        for p in produtos:
+            print(f"{p.nome}: {p.quantidade} unidades | Compra: R$ {p.preco_compra:.2f} | Venda: R$ {p.preco_venda:.2f} | Vence: {p.data_vencimento.strftime('%d/%m/%Y')}")
+
+
 # === TESTE DO SISTEMA INTEGRADO ===
 if __name__ == "__main__":
-    # === TESTE 1: Manual (original) ===
-    print("=== TESTE 1: DADOS MANUAIS ===")
+    # === TESTE 1: Dados aleatórios com Faker ===
+    print("=== TESTE 1: DADOS ALEATÓRIOS COM FAKER ===")
     restaurante = Restaurante()
-
-    # Popular estoque inicial
-    hoje = datetime.now()
-    restaurante.gerenciador_estoque.adicionar_produto(
-        Produto("Hambúrguer", 10.00, 25.00, hoje, hoje + timedelta(days=7), 20)
-    )
-    restaurante.gerenciador_estoque.adicionar_produto(
-        Produto("Batata Frita", 5.00, 15.00, hoje, hoje + timedelta(days=10), 30)
-    )
-    restaurante.gerenciador_estoque.adicionar_produto(
-        Produto("Coca Cola", 3.00, 8.00, hoje, hoje + timedelta(days=30), 50)
-    )
-    restaurante.gerenciador_estoque.adicionar_produto(
-        Produto("Suco", 2.00, 6.00, hoje, hoje + timedelta(days=15), 40)
-    )
-    restaurante.gerenciador_estoque.adicionar_produto(
-        Produto("Água", 1.00, 4.00, hoje, hoje + timedelta(days=60), 100)
-    )
-
-    print("=== ESTOQUE INICIAL ===")
-    for produto in restaurante.gerenciador_estoque.listar_estoque():
-        print(f"{produto.nome}: {produto.quantidade} unidades (R$ {produto.preco_venda:.2f})")
-    print()
-
-    # Simular atendimento completo
-    print("=== ATENDIMENTO COMPLETO ===")
-    comanda1 = restaurante.abrir_comanda("João")
-    print(f"Comanda aberta: {comanda1.numero} - Cliente: {comanda1.cliente}")
-
-    restaurante.adicionar_item_comanda(comanda1.numero, Item("Hambúrguer", 25.00, "refeicao"))
-    restaurante.adicionar_item_comanda(comanda1.numero, Item("Batata Frita", 15.00, "refeicao"))
-    restaurante.adicionar_item_comanda(comanda1.numero, Item("Coca Cola", 8.00, "bebida"))
-    print(f"Itens adicionados à comanda {comanda1.numero}")
-
-    print(f"Total da comanda: R$ {comanda1.total():.2f}")
-    print()
-
-    # Fechar comanda e pagar
-    restaurante.fechar_comanda_e_pagar(comanda1.numero, "cartao")
-    print(f"Comanda {comanda1.numero} fechada e paga com cartão")
-    print()
-
-    # Verificar estoque após consumo
-    print("=== ESTOQUE APÓS CONSUMO ===")
-    for produto in restaurante.gerenciador_estoque.listar_estoque():
-        print(f"{produto.nome}: {produto.quantidade} unidades")
-    print()
-
-    # Verificar registros
-    print("=== REGISTRO DE CONSUMO ===")
-    for consumo in restaurante.gerenciador_consumo.buscar_consumo_por_comanda(comanda1.numero):
-        print(f"{consumo.cliente} consumiu: {consumo.item_nome} (Qtd: {consumo.quantidade})")
-    print()
-
-    print("=== REGISTRO DE PAGAMENTO ===")
-    for pagamento in restaurante.gerenciador_pagamentos.buscar_pagamentos_por_comanda(comanda1.numero):
-        print(f"{pagamento.cliente} pagou R$ {pagamento.valor:.2f} via {pagamento.forma_pagamento}")
-    print()
-
-    # === TESTE 2: Faker (dados aleatórios) ===
-    print("\n=== TESTE 2: DADOS ALEATÓRIOS COM FAKER ===")
-    restaurante_faker = Restaurante()
     gerador = GeradorDados()
 
     # Popular estoque com dados aleatórios
     print("=== POPULANDO ESTOQUE COM DADOS ALEATÓRIOS ===")
-    gerador.popular_estoque_aleatorio(restaurante_faker.gerenciador_estoque, quantidade_produtos=8)
+    gerador.popular_estoque_aleatorio(restaurante.gerenciador_estoque, quantidade_produtos=8)
 
     print("=== ESTOQUE ALEATÓRIO ===")
-    for produto in restaurante_faker.gerenciador_estoque.listar_estoque():
+    for produto in restaurante.gerenciador_estoque.listar_estoque():
         print(f"{produto.nome}: {produto.quantidade} unidades (R$ {produto.preco_venda:.2f})")
     print()
 
     # Simular múltiplos atendimentos aleatórios
     print("=== SIMULANDO ATENDIMENTOS ALEATÓRIOS ===")
     for i in range(3):
-        comanda = gerador.gerar_atendimento_completo(restaurante_faker)
+        comanda = gerador.gerar_atendimento_completo(restaurante)
         print(f"Atendimento {i+1}: Comanda {comanda.numero} - {comanda.cliente} - Total: R$ {comanda.total():.2f}")
     print()
 
-    # === TESTE 3: Persistência com Pickle ===
-    print("=== TESTE 3: PERSISTÊNCIA COM PICKLE ===")
-    PersistenciaDados.salvar_restaurante(restaurante_faker, 'restaurante_teste.pkl')
+    # === TESTE 2: Persistência com Pickle ===
+    print("=== TESTE 2: PERSISTÊNCIA COM PICKLE ===")
+    PersistenciaDados.salvar_restaurante(restaurante, 'restaurante_teste.pkl')
 
     restaurante_carregado = PersistenciaDados.carregar_restaurante('restaurante_teste.pkl')
     if restaurante_carregado:
@@ -492,3 +527,12 @@ if __name__ == "__main__":
         print(f"Produtos em estoque: {len(restaurante_carregado.gerenciador_estoque.listar_estoque())}")
         print(f"Pagamentos registrados: {len(restaurante_carregado.gerenciador_pagamentos.listar_todos_pagamentos())}")
         print(f"Registros de consumo: {len(restaurante_carregado.gerenciador_consumo.listar_todos_consumos())}")
+        print()
+
+    # === TESTE 3: Relatórios ===
+    print("=== TESTE 3: RELATÓRIOS ===")
+    GeradorRelatorios.relatorio_vendas(restaurante)
+    print()
+    GeradorRelatorios.relatorio_consumo(restaurante)
+    print()
+    GeradorRelatorios.relatorio_estoque(restaurante)
