@@ -49,11 +49,57 @@ As estruturas de dados devem ser implementadas por meio de **classes próprias**
 
 ## 📌 Status do Projeto
 
-🚧 **Em desenvolvimento**
+✅ **Concluído**
 
-O projeto será desenvolvido por meio de **entregas incrementais no GitHub**, conforme os requisitos da avaliação.
+O projeto foi desenvolvido por meio de **entregas incrementais no GitHub**, conforme os requisitos da avaliação.
 
 **Prazo final:** 17/09/2026
 **Apresentação:** 07h50
 
-O sistema deverá simular um atendimento completo, desde a abertura da comanda e inclusão dos itens até o fechamento e pagamento.
+O sistema simula um atendimento completo, desde a abertura da comanda e inclusão dos itens até o fechamento e pagamento.
+
+## 🚀 Como Executar
+
+1. Certifique-se de ter Python instalado
+2. Instale as dependências:
+   ```bash
+   pip install faker
+   ```
+3. Execute o projeto:
+   ```bash
+   python ProjetoRestaurante.py
+   ```
+
+## 📐 Estrutura do Código
+
+O projeto foi implementado utilizando **classes próprias** para estruturas de dados, conforme exigido:
+
+### Estruturas de Dados Base
+- **No** - Nó para estruturas encadeadas
+- **ListaEncadeada** - Implementação própria de lista encadeada
+- **FilaEncadeada** - Implementação própria de fila (FIFO) para produtos perecíveis
+
+### Classes Principais
+- **Item** - Representa refeições e bebidas
+- **Comanda** - Gerencia uma comanda individual
+- **GerenciadorComandas** - Controla todas as comandas do restaurante
+- **Produto** - Representa produtos em estoque
+- **GerenciadorEstoque** - Gerencia o estoque com fila FIFO
+- **Pagamento** - Registra informações de pagamento
+- **GerenciadorPagamentos** - Controla todos os pagamentos
+- **Consumo** - Registra itens consumidos
+- **GerenciadorConsumo** - Gerencia registros de consumo
+- **Restaurante** - Classe integradora que conecta todos os módulos
+- **GeradorDados** - Gera dados aleatórios usando Faker
+- **PersistenciaDados** - Salva/carrega dados usando pickle
+- **GeradorRelatorios** - Gera relatórios de vendas, consumo e estoque
+
+## ✅ Funcionalidades Implementadas
+
+1. **Controle de Comandas** - Abertura, adição/remoção de itens, fechamento
+2. **Controle de Estoque** - Gerenciamento com prioridade FIFO para produtos perecíveis
+3. **Controle de Pagamentos** - Registro via PIX, cartão ou dinheiro
+4. **Controle de Consumo** - Baixa automática de estoque e registro de consumo
+5. **Geração de Dados** - Dados aleatórios com Faker
+6. **Persistência** - Armazenamento não volátil com pickle
+7. **Relatórios** - Vendas, consumo e estoque
