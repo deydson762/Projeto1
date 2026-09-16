@@ -1,4 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+import pickle
+from faker import Faker
 
 
 class No:
@@ -319,10 +321,85 @@ class Restaurante:
             self.gerenciador_estoque.editar_quantidade(nome_produto, nova_qtd)
 
 
+# === PARTE 5: GERAÇÃO E ARMAZENAMENTO DE DADOS ===
+
+class GeradorDados:
+    def __init__(self):
+        self.faker = Faker('pt_BR')
+
+    def gerar_nome_cliente(self):
+        return self.faker.name()
+
+    def gerar_produto_aleatorio(self):
+        nomes_produtos = ["Hambúrguer", "Pizza", "Batata Frita", "Coca Cola", "Suco", "Água", "Refrigerante", "Salada"]
+        nome = self.faker.random_element(nomes_produtos)
+        tipo = "bebida" if nome in ["Coca Cola", "Suco", "Água", "Refrigerante"] else "refeicao"
+        preco_compra = round(self.faker.random.uniform(2.0, 15.0), 2)
+        preco_venda = round(preco_compra * self.faker.random.uniform(2.0, 3.0), 2)
+        data_compra = self.faker.date_between(start_date='-30d', end_date='today')
+        data_vencimento = data_compra + timedelta(days=self.faker.random_int(7, 60))
+        quantidade = self.faker.random_int(10, 100)
+        return Produto(nome, preco_compra, preco_venda, data_compra, data_vencimento, quantidade)
+
+    def popular_estoque_aleatorio(self, gerenciador_estoque, quantidade_produtos=10):
+        for _ in range(quantidade_produtos):
+            produto = self.gerar_produto_aleatorio()
+            gerenciador_estoque.adicionar_produto(produto)
+
+    def gerar_atendimento_completo(self, restaurante):
+        cliente = self.gerar_nome_cliente()
+        comanda = restaurante.abrir_comanda(cliente)
+
+        # Adicionar refeições aleatórias
+        num_refeicoes = self.faker.random_int(1, 3)
+        refeicoes_disponiveis = ["Hambúrguer", "Pizza", "Batata Frita", "Salada"]
+        for _ in range(num_refeicoes):
+            nome = self.faker.random_element(refeicoes_disponiveis)
+            preco = round(self.faker.random.uniform(15.0, 40.0), 2)
+            restaurante.adicionar_item_comanda(comanda.numero, Item(nome, preco, "refeicao"))
+
+        # Adicionar bebidas aleatórias
+        num_bebidas = self.faker.random_int(1, 2)
+        bebidas_disponiveis = ["Coca Cola", "Suco", "Água"]
+        for _ in range(num_bebidas):
+            nome = self.faker.random_element(bebidas_disponiveis)
+            preco = round(self.faker.random.uniform(4.0, 10.0), 2)
+            restaurante.adicionar_item_comanda(comanda.numero, Item(nome, preco, "bebida"))
+
+        # Fechar comanda e pagar
+        formas_pagamento = ["PIX", "cartao", "dinheiro"]
+        forma = self.faker.random_element(formas_pagamento)
+        restaurante.fechar_comanda_e_pagar(comanda.numero, forma)
+
+        return comanda
+
+
+class PersistenciaDados:
+    @staticmethod
+    def salvar_restaurante(restaurante, arquivo='restaurante_data.pkl'):
+        with open(arquivo, 'wb') as f:
+            pickle.dump(restaurante, f)
+        print(f"Dados salvos em {arquivo}")
+
+    @staticmethod
+    def carregar_restaurante(arquivo='restaurante_data.pkl'):
+        try:
+            with open(arquivo, 'rb') as f:
+                restaurante = pickle.load(f)
+            print(f"Dados carregados de {arquivo}")
+            return restaurante
+        except FileNotFoundError:
+            print(f"Arquivo {arquivo} não encontrado")
+            return None
+        except Exception as e:
+            print(f"Erro ao carregar dados: {e}")
+            return None
+
+
 # === TESTE DO SISTEMA INTEGRADO ===
 if __name__ == "__main__":
-    from datetime import datetime, timedelta
-
+    # === TESTE 1: Manual (original) ===
+    print("=== TESTE 1: DADOS MANUAIS ===")
     restaurante = Restaurante()
 
     # Popular estoque inicial
@@ -381,3 +458,37 @@ if __name__ == "__main__":
     print("=== REGISTRO DE PAGAMENTO ===")
     for pagamento in restaurante.gerenciador_pagamentos.buscar_pagamentos_por_comanda(comanda1.numero):
         print(f"{pagamento.cliente} pagou R$ {pagamento.valor:.2f} via {pagamento.forma_pagamento}")
+    print()
+
+    # === TESTE 2: Faker (dados aleatórios) ===
+    print("\n=== TESTE 2: DADOS ALEATÓRIOS COM FAKER ===")
+    restaurante_faker = Restaurante()
+    gerador = GeradorDados()
+
+    # Popular estoque com dados aleatórios
+    print("=== POPULANDO ESTOQUE COM DADOS ALEATÓRIOS ===")
+    gerador.popular_estoque_aleatorio(restaurante_faker.gerenciador_estoque, quantidade_produtos=8)
+
+    print("=== ESTOQUE ALEATÓRIO ===")
+    for produto in restaurante_faker.gerenciador_estoque.listar_estoque():
+        print(f"{produto.nome}: {produto.quantidade} unidades (R$ {produto.preco_venda:.2f})")
+    print()
+
+    # Simular múltiplos atendimentos aleatórios
+    print("=== SIMULANDO ATENDIMENTOS ALEATÓRIOS ===")
+    for i in range(3):
+        comanda = gerador.gerar_atendimento_completo(restaurante_faker)
+        print(f"Atendimento {i+1}: Comanda {comanda.numero} - {comanda.cliente} - Total: R$ {comanda.total():.2f}")
+    print()
+
+    # === TESTE 3: Persistência com Pickle ===
+    print("=== TESTE 3: PERSISTÊNCIA COM PICKLE ===")
+    PersistenciaDados.salvar_restaurante(restaurante_faker, 'restaurante_teste.pkl')
+
+    restaurante_carregado = PersistenciaDados.carregar_restaurante('restaurante_teste.pkl')
+    if restaurante_carregado:
+        print("=== DADOS CARREGADOS COM SUCESSO ===")
+        print(f"Comandas no sistema: {len(restaurante_carregado.gerenciador_comandas.comandas.listar())}")
+        print(f"Produtos em estoque: {len(restaurante_carregado.gerenciador_estoque.listar_estoque())}")
+        print(f"Pagamentos registrados: {len(restaurante_carregado.gerenciador_pagamentos.listar_todos_pagamentos())}")
+        print(f"Registros de consumo: {len(restaurante_carregado.gerenciador_consumo.listar_todos_consumos())}")
