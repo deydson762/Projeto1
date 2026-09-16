@@ -511,7 +511,7 @@ if __name__ == "__main__":
 
     # Simular múltiplos atendimentos aleatórios
     print("=== SIMULANDO ATENDIMENTOS ALEATÓRIOS ===")
-    for i in range(3):
+    for i in range(5):
         comanda = gerador.gerar_atendimento_completo(restaurante)
         print(f"Atendimento {i+1}: Comanda {comanda.numero} - {comanda.cliente} - Total: R$ {comanda.total():.2f}")
     print()
